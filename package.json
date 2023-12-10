@@ -1,6 +1,7 @@
 {
   "name": "Dune Character Sheet",
   "version": "0.1.0",
+  "homepage": "./",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -22,12 +23,15 @@
     "passport-google-oauth": "^2.0.0",
     "pg": "^8.11.3",
     "react": "^18.2.0",
+    "react-contenteditable": "^3.3.7",
     "react-cookie": "^6.1.1",
     "react-dom": "^18.2.0",
+    "react-edit-list": "^1.1.0",
     "react-native": "^0.72.7",
     "react-native-web": "^0.19.9",
     "react-redux": "^8.0.5",
     "react-scripts": "5.0.1",
+    "react-sortablejs": "^6.1.4",
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4"
   },

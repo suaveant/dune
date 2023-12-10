@@ -1,13 +1,46 @@
 .App {
   text-align: center;
-  background-image: url("images/dunesheet.png");
+  background-image: url("images/dune_sheet2.png");
   background-size: cover;
   aspect-ratio: .77;
-  min-width: 1000px;
+  min-width: 800px; 
+  max-width: 1500px;
   container: app / size;
 }
 
-@container app (min-width: 1000px) {
+.cetext {
+  /* width: 400px; */
+  /* padding: 12px; */
+  box-sizing: border-box;
+  /* outline: 1px solid red; */
+}
+.clean {
+  border: none;
+  /* display: inline; */
+  font-family: inherit;
+  padding: none;
+  background-color: transparent;
+  font-size: inherit;
+}
+.Extra {
+  min-width: 800px;
+  max-width: 1500px;
+  aspect-ratio: .77;
+  background-image: url("images/dune_extended.png");
+  container: app / size;
+  background-size: cover;
+}
+
+.advpoints {
+  text-align: center;
+}
+
+.sortableDiv {
+  display: flex;
+  flex-flow: column wrap;
+  overflow: hidden;
+}
+@container app (width > 400px) {
   .small {
     font-size: 2.3cqw;
   }
@@ -15,13 +48,13 @@
     font-size: 2cqw;
   }
   .smallerer {
-    font-size: 1.5cqw;
+    font-size: 1.6cqw;
   }
   .large {
     font-size: 3cqw;
   }
-  .cleanArea {
-    font-size: 1.3cqw;
+  .sortIcons {
+    font-size: 2cqw;
   }
 }
 .container {
@@ -33,39 +66,27 @@
   overflow: hidden;
 }
 
-/* input.changed { 
-  background: linear-gradient(135deg,#530000 10px,rgba(1,1,1,0) 0); 
-  border-radius: 12px;
-  overflow: hidden;
-} 
-*/
 
-/* span:after {
-  content: '';
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 30px 30px 0;
-  border-color: transparent #608A32 transparent transparent;
-  right: 0;
-  top: 0;
-  position: absolute;
-} */
-input::after {
-  content: "";
-  width: 0px;
-  height: 0px;
-  border: 60px solid transparent;
-  position: absolute;
-  right: -115px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-left: 60px solid yellow;
-  border-top-right-radius: 10px; /* Add a small border-radius for the top-right corner */
+
+.MuiTooltip-popper {
+  font-size: 100px !important;
 }
 
+.MuiPopper-root {
+  font-size: 100px !important;
+}
+/* .container {
+  position: relative;
+  width: 300px;
+  height: 70px;
+  background: black;
+  border-radius: 12px;
+  overflow: hidden;
+} */
+
 .changed {
-  color: rgb(92, 0, 0) !important;
+  color: rgb(128, 0, 92) !important;
+  /* font-weight: bold; */
 }
 
 .App-logo {
@@ -89,8 +110,8 @@ input::after {
   font-family: inherit;
   padding: none;
   background-color: transparent;
-}
 
+}
 
 .App-header {
   min-height: 100vh;
@@ -103,4 +124,10 @@ input::after {
 
 .App-link {
   color: rgb(112, 76, 182);
+}
+
+
+
+.MuiIconButton-root {
+  padding: 0 !important;
 }

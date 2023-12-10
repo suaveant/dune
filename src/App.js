@@ -30,10 +30,10 @@ function App() {
   }, [user,characterId]);
 
 
-  console.log('user',user,window.location.hostname);
+  console.log('userfoo',user,characterId);
   return (<div>
     { !user ? <UserList setUser={setUser}/> :
-      !characterId ? <CharacterList user={user} setCharacterId={setCharacterId}/> :
+      !characterId ? <CharacterList user={user} setCharacterId={setCharacterId} setUser={setUser}/> :
     <CharEdit user={user} characterId={characterId} setUser={setUser} setCharacterId={setCharacterId}/>
 }
 </div>

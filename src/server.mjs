@@ -75,41 +75,32 @@ app.get('/fetchCharacter/:characterId', async (req, res) => {
 app.get('/createUser/:user', async (req, res) => {
   console.log('new user',req.params);
   try {
-    const qry = await client.query("INSERT INTO users(username) VALUES($1)", [req.params.user]);
+    const qry = await client.query("INSERT INTO users(username) VALUES($1) RETURNING userid", [req.params.user]);
     console.log("RES",qry)
     // const user = await userdb.get(req.params.user);
-    return res.send('already exists');
-  } catch(err) { console.log('ERR',err)}
+    res.send({ status: true, data: { username: req.params.user, userid: qry.rows[0].userid }});
+  } catch(err) { 
+    console.log('ERR',err);
+    res.send({ status: false, error: err });
+  }
 
   // console.log(await userdb.put(req.params.user,{}));
-  res.send('user created');
+  
 });
 
 app.get('/createCharacter/:character/user/:user', async (req, res) => {
   console.log('new character',req.params);
   try {
     let charId = uuid();
-    const qry = await client.query("INSERT INTO characters(userid, character_name, data) VALUES($1,$2,$3)", 
+    const qry = await client.query("INSERT INTO characters(userid, character_name, data) VALUES($1,$2,$3) RETURNING id", 
       [req.params.user, req.params.character,{ user: req.params.user, name: req.params.character }]);
-    console.log("RES",qry)
+    console.log("RES",qry);
+    res.send({ status: true, data: { name: req.params.character, id: qry.rows[0].id }});
     // const user = await userdb.get(req.params.user);
-    return res.send('already exists');
-  } catch(err) { console.log('ERR',err)}
-
-  // console.log(await userdb.put(req.params.user,{}));
-res.send('character created');
-
-  // console.log('new character',req.params);
-  // try {
-  //   // const character = await db.get(req.params.character);
-  //   return res.send('already exists');
-  // } catch {}
-  // let charId = uuid();
-  // // await db.put(charId,{ user: req.params.user, name: character, characterId: charId });
-  // // const user = await userdb.get(req.params.user);
-  // user[req.params.character] = charId;
-  // // await userdb.put(req.params.user,user);
-  // console.log('char!',charId,user);
+  } catch(err) { 
+    console.log('ERR',err);
+    return res.send({ status: false, error: err });
+  }
   
 });
 
@@ -121,6 +112,7 @@ app.post('/update', async (req, res) => {
     const qry = await client.query("update characters set character_name = $1, data = $2 where id = $3", 
       [req.body.name, req.body, req.body.id]);
     console.log("RES",qry)
+    client.query('insert into character_history(id,userid,character_name,data,time_stamp) SELECT id,userid,character_name,data,current_timestamp FROM characters WHERE id = $1',[req.body.id]);
     // const user = await userdb.get(req.params.user);
     return res.send('updated');
     //  db.put(req.body['characterId'], req.body);
