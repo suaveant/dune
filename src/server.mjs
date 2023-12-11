@@ -25,21 +25,8 @@ console.log(await client.query('SELECT NOW()'));
 app.use(bodyParser.json({ }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', async (req, res) => {
-  let D = new Date;
+app.use('/', express.static('./'))
 
-  let value;
-  try {
-    // value = await db.get('date');
-    // console.log(value);
-  } catch (err) {
-    console.log(err.code) // 'LEVEL_ITERATOR_BUSY'
-  }
-  res.send('Hello World! '+value.date);
-  //if(!value)
-    await db.put('date',{ date: D.toLocaleString(), test: 1 });
-
-})
 
 app.get('/userList', async (req, res) => {
   try {

@@ -3,9 +3,17 @@
   background-image: url("images/dune_sheet2.png");
   background-size: cover;
   aspect-ratio: .77;
-  min-width: 800px; 
+  min-width: 800px;
   max-width: 1500px;
   container: app / size;
+}
+
+.modalBox {
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  background-color: white;
+  border: 2px solid #000;
 }
 
 .cetext {
@@ -14,6 +22,7 @@
   box-sizing: border-box;
   /* outline: 1px solid red; */
 }
+
 .clean {
   border: none;
   /* display: inline; */
@@ -22,6 +31,7 @@
   background-color: transparent;
   font-size: inherit;
 }
+
 .Extra {
   min-width: 800px;
   max-width: 1500px;
@@ -40,23 +50,29 @@
   flex-flow: column wrap;
   overflow: hidden;
 }
+
 @container app (width > 400px) {
   .small {
     font-size: 2.3cqw;
   }
+
   .smaller {
     font-size: 2cqw;
   }
+
   .smallerer {
     font-size: 1.6cqw;
   }
+
   .large {
     font-size: 3cqw;
   }
+
   .sortIcons {
     font-size: 2cqw;
   }
 }
+
 .container {
   position: relative;
   width: 300px;
@@ -75,6 +91,7 @@
 .MuiPopper-root {
   font-size: 100px !important;
 }
+
 /* .container {
   position: relative;
   width: 300px;
