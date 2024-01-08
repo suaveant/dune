@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { TextField, Button, Alert } from '@mui/material';
+import React, {  useState } from 'react';
+import {  useQuery } from '@tanstack/react-query';
+import { TextField, Alert } from '@mui/material';
 import { MyButton } from '../MyButton';
 
 let host = window.location.hostname;
@@ -16,15 +16,11 @@ export const UserList = (props) => {
     // const [userList,setUserList] = useState([]);
     const [error,setError] = useState();
     const [newUser,setNewUser] = useState('');
-    const getUsers = () => {
-        fetch(`http://${host}:3001/userList`,{ mode: 'cors' });
-    }
 
     const createUser = async () => {
 
         const resp = await fetch(`http://${host}:3001/createUser/`+newUser);
         let data = await resp.json();
-        console.log('create',data);
         if(data.status) {
             props.setUser(data.data);
         }
@@ -34,8 +30,7 @@ export const UserList = (props) => {
     };
 
     const userList = useQuery({queryKey: ["users"], queryFn: fetchUsers});
-    console.log(userList.data,props);
-    return <div style={{ 'margin-left': '40%', marginTop: '5%', width: '20%' }}>
+    return <div style={{ marginLeft: '40%', marginTop: '5%', width: '20%' }}>
         
         { error && <Alert severity="error">{error}</Alert> }
         <MyButton disabled={!newUser || userList?.data?.includes(newUser) } onClick={createUser} variant="contained" title="Add User">Add User</MyButton> 

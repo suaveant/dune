@@ -1,24 +1,25 @@
 import React, { Fragment, useState } from 'react';
-import {  useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Box, Popover } from '@mui/material';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { useCookies } from 'react-cookie';
 import Typography from '@mui/material/Typography';
-import ReactEditList, * as REL from "react-edit-list";
 import { MyButton } from '../MyButton';
 import { ReactSortable } from "react-sortablejs";
 import ContentEditable from 'react-contenteditable'
 import Info from '@mui/icons-material/Info';
 import DragHandle from '@mui/icons-material/DragHandle';
 import { Delete } from '@mui/icons-material';
+import update from 'immutability-helper';
 
 let host = window.location.hostname;
 
 const CharEditor = ({ children, updateHandler, data, orig }) => {
   const renderChildren = () => {
     return React.Children.map(children, (child) => {
-      if (child && (child.props.field)) {
+
+      if (child && (child?.props?.field)) {
         return React.cloneElement(child, {
           updateHandler: updateHandler,
           data: data,
@@ -38,7 +39,7 @@ const CharArea = ({ field, left, top, width, height, className, data, orig, upda
   }
   return <textarea
     onChange={(e) => updateHandler(field, e.target.value)}
-    value={data?.[field]}
+    value={data?.[field] || ''}
     style={{ left: left + '%', top: top + '%', width: width + '%', height: height + '%' }}
     className={"cleanArea clean " + className} />
 
@@ -80,12 +81,12 @@ export const CharEdit = (props) => {
       resp.data.data.id = resp.data.id;
       setCharOrig(resp.data.data);
       let data;
-      if (cookies.duneCharEdits?.id == resp.data.id) {
-        setCharacter(cookies.duneCharEdits);
+      if (cookies.duneCharEdits?.id === resp.data.id) {
+        // setCharacter(cookies.duneCharEdits);
         data = cookies.duneCharEdits;
       }
       else {
-        setCharacter(resp.data.data);
+        // setCharacter(resp.data.data);
         data = resp.data.data;
       }
       setInitialized(true);
@@ -104,13 +105,23 @@ export const CharEdit = (props) => {
       Object.keys(data).forEach(d => {
         if (!d.match(/^(asset|qual|pot)\d/))
           data2[d] = data[d];
-      })
+      });
+      console.log('data',data2);
+      setCharacter(data2);
       return data2;
     }
   };
-
+ console.log('assets',character?.assets);
   const revertChanges = () => {
-    setCharacter(charOrig);
+    let D = new Date().getTime();
+    // character.assets = [...character.assets];
+    // character.assets[2] = {...character.assets[2], pot: 6};
+    let c = JSON.parse(JSON.stringify(charOrig));//{...charOrig};
+    // c.assets = [...charOrig.assets]
+    console.log('revert2',character,charOrig,c); 
+
+    setCookie('duneCharEdits', c);
+    setCharacter(c);//JSON.parse(JSON.stringify(charOrig)));
   }
 
   const saveChanges = () => {
@@ -125,21 +136,26 @@ export const CharEdit = (props) => {
     }
   };
 
-  const userInfo = useQuery({ queryKey: ["character", props.characterId.id], queryFn: fetchCharacter });
+  const charInfo = useQuery({ queryKey: ["character", props.characterId.id], queryFn: fetchCharacter });
   const isChanged = () => {
     let changed = false;
     if (character && charOrig) {
+      console.log('change',character,charOrig,Object.keys(character).find(k => {
+
+        return k === 'changeTime' ? false : character[k] !== charOrig[k];
+      }));
       return Object.keys(character).find(k => {
 
-        return k == 'changeTime' ? false : character[k] !== charOrig[k];
+        return k === 'changeTime' ? false : JSON.stringify(character[k]) !== JSON.stringify(charOrig[k]);
       }) ? true : false;
     }
     return changed;
   };
 
-  const schema: REL.Schema = [
-    { name: "name", type: "string" },
-  ];
+  if(charInfo.isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Fragment>
       <div className="App">
@@ -155,9 +171,9 @@ export const CharEdit = (props) => {
           </div>
           {isChanged() &&
             <div style={{ position: 'absolute', right: '3%', top: 10 }}>
-              <ConfirmButton tag="MyButton" onConfirm={() => { revertChanges() }}>Revert</ConfirmButton>
+              <ConfirmButton tag="MyButton" onConfirm={() => { console.log('revert');revertChanges() }}>Revert</ConfirmButton>
               &nbsp;
-              <ConfirmButton tag="MyButton" onConfirm={() => { saveChanges() }}>Save</ConfirmButton>
+              <ConfirmButton tag="MyButton" onConfirm={() => { console.log('save');saveChanges() }}>Save</ConfirmButton>
             </div>
           }
           <CharInput field='name' left={12} top={20.6} width={34} className="cleanInput clean small" />
@@ -172,7 +188,7 @@ export const CharEdit = (props) => {
           <CharArea field='justiceStatement' left={30.2} top={51.6} height={3.6} width={25.5} className="justice" />
           <CharArea field='powerStatement' left={30.2} top={56.2} height={3.6} width={25.5} className="power" />
           <CharArea field='truthStatement' left={30.2} top={60.7} height={3.6} width={25.5} className="truth" />
-          <CharArea field='traits' left={54.8} top={23.2} height={8.8} width={34} className="traits" />
+          <CharArea field='traits' left={54.8} top={23.2} height={8.8} width={34} className="traits smallerer" />
           <CharList field='talents' left={65.7} top={42.8} height={18.5} width={26} />
           <CharInput field="justice" left={25.5} top={52.2} width={2} className="large" />
           <CharInput field="power" left={25.5} top={56.8} width={2} className="large" />
@@ -207,15 +223,10 @@ export const CharEdit = (props) => {
   );
 }
 
-const Tag = ({ tagName, children, ...props }) => (
-  React.createElement(tagName, props, children)
-);
-
 const ConfirmButton = ({ icon, onConfirm, params, tag = 'IconButton', children }) => {
   const [show, setShow] = useState(false);
   const [anchor, setAnchor] = useState();
-  const MyTag = tag;
-  console.log('mytag', MyTag);
+  
   let props = { onClick: (e) => { setAnchor(e.currentTarget); setShow(true) } };
   return <Fragment>
     <Popover disableAutoFocus={true} anchorEl={anchor} open={show} onClose={() => setShow(false)}>
@@ -232,24 +243,19 @@ const ConfirmButton = ({ icon, onConfirm, params, tag = 'IconButton', children }
   </Fragment>
 };
 
-const style = {
-
-};
-
 const CharList = ({ field, left, top, width, height, className, data, orig, updateHandler, extended = false }) => {
 
   const [anchor, setAnchor] = useState();
   const [showInfo, setShowInfo] = useState(undefined);
 
-  // console.log('data3', extended, data, field, data?.[field]);
   let i = -1;
 
 
   return <div style={{ overflowY: 'auto', left: left + '%', top: top + '%', width: width + '%', height: height + '%' }} className={"cleanArea sortable-items-" + field + " " + className}>
     {Array.isArray(data?.[field]) &&
       <React.Fragment>
-        <Popover disableAutoFocus={true} anchorEl={anchor} open={showInfo != undefined} style={{ maxWidth: '90%' }} onClose={() => setShowInfo(undefined)}>
-          <Box className="modalBox" sx={style}>
+        <Popover disableAutoFocus={true} anchorEl={anchor} open={showInfo !== undefined} style={{ maxWidth: '90%' }} onClose={() => setShowInfo(undefined)}>
+          <Box className="modalBox">
             <Typography sx={{ p: 2 }}>{showInfo?.description}</Typography>
           </Box>
         </Popover>
@@ -258,8 +264,8 @@ const CharList = ({ field, left, top, width, height, className, data, orig, upda
           {
             data[field].map((item) => {
               i++;
-              let changed = data[field][i]['name'] != orig[field]?.[i]?.['name'] ? 'changed' : '';
-              let changedDesc = data[field][i]['description'] != orig[field]?.[i]?.['description'] ? 'changed' : '';
+              let changed = data[field][i]['name'] !== orig[field]?.[i]?.['name'] ? 'changed' : '';
+              let changedDesc = data[field][i]['description'] !== orig[field]?.[i]?.['description'] ? 'changed' : '';
               return <div id={i} key={i} className={className}>
                 <div className="smallerer" style={{ display: 'flex', alignItems: 'center' }}>
                   {extended && <IconButton className="dragHandle sortIcons"><DragHandle /></IconButton>}
@@ -314,73 +320,65 @@ const CharList = ({ field, left, top, width, height, className, data, orig, upda
   </div>
 }
 
+const AssetItem = ({idx, item, orig, className, extended, onUpdate}) => {
+    return <div style={{ position: 'relative', flex: '1 1 30px' }} id={idx} key={idx} className={className}>
+      <div className="smallerer" style={{ display: 'flex', alignItems: 'center' }}>
+        <input
+          style={{ flexGrow: '0', fontWeight: 'bold', minHeight: 0, width: '90%' }}
+          className={"clean"+(item.name === orig?.name ? '' : ' changed')}
+          autoFocus={item.name.length === 1}
+          value={item.name} onChange={(e) => {
+            onUpdate(idx, 'name', e.target.value);
+            
+          }} />
+
+        {extended ?
+          <ConfirmButton params={idx} onConfirm={(idx) => {
+              onUpdate(idx, 'delete', null);
+            
+          }}><Delete/></ConfirmButton>
+          : ''
+        }
+      </div>
+
+      <div style={{ textAlign: 'right', fontSize: '1.5cqw' }}>
+        {extended && <IconButton style={{ float: 'left' }} className="dragHandle sortIcons"><DragHandle /></IconButton>}
+        Pot: 
+          <input className={"clean"+(item.pot === orig?.pot ? '' : ' changed')} style={{ width: '12%' }} value={item.pot || ''} onChange={(e) => {
+            onUpdate(idx, 'pot', e.target.value);
+          }}/> 
+        Qual: 
+          <input className={"clean"+(item.quality === orig?.quality ? '' : ' changed')} style={{ width: '12%' }} value={item.quality || ''} onChange={(e) => {
+            onUpdate(idx, 'quality', e.target.value);
+          }} /><br clear="all" /></div>
+    </div>
+    ;
+};
+
 const AssetList = ({ field, left, top, width, height, className, data, orig, updateHandler, extended = false }) => {
-
-  const [anchor, setAnchor] = useState();
-  const [showInfo, setShowInfo] = useState(undefined);
-
   let i = -1;
-
 
   return <div style={{ display: 'flex', flexFlow: 'column wrap', overflowY: 'auto', left: left + '%', top: top + '%', width: width + '%', height: height + '%' }} className={"cleanArea sortable-items-" + field + " " + className}>
     {Array.isArray(data?.[field]) &&
       <React.Fragment>
-        <Popover anchorEl={anchor} open={showInfo != undefined} style={{ maxWidth: '90%' }} onClose={() => setShowInfo(undefined)}>
-          <Typography sx={{ p: 2 }}>{showInfo?.description}</Typography>
-        </Popover>
         <ReactSortable list={data[field]} setList={(d) => updateHandler(field, d)} className="sortableDiv" handle=".dragHandle">
 
           {
             data[field].map((item) => {
               i++;
-              let changed = data[field][i]['name'] != orig[field]?.[i]?.['name'] ? 'changed' : '';
-              let changedDesc = data[field][i]['description'] != orig[field]?.[i]?.['description'] ? 'changed' : '';
-              return <div style={{ position: 'relative', flex: '1 1 30px' }} id={i} key={i} className={className}>
-                <div className="smallerer" style={{ display: 'flex', alignItems: 'center' }}>
-                  <input
-                    style={{ flexGrow: '0', fontWeight: 'bold', minHeight: 0, width: '90%' }}
-                    className={"clean  " + changed}
-                    autoFocus={item.name.length === 1}
-                    value={item.name} onChange={(e) => {
-                      data[field][e.target.parentNode.parentNode.id]['name'] = e.target.value;
-                      updateHandler(field, data[field])
-                    }} />
-
-                  {extended ?
-                    <ConfirmButton params={i} onConfirm={(idx) => {
-                      data[field].splice(idx, 1);
-                      updateHandler(field, data[field]);
-                    }} />
-                    :
-                    ''
-                    // <span style={{ border: 'solid 1px green', flex: 'none' }}>
-                    // <IconButton className="sortIcons" onClick={(e) => { setAnchor(e.currentTarget); setShowInfo(item); } }><Info/></IconButton>
-                    // </span>
-                  }
-                </div>
-
-                <div style={{ textAlign: 'right', fontSize: '1.5cqw' }}>
-                  {extended && <IconButton style={{ float: 'left' }} className="dragHandle sortIcons"><DragHandle /></IconButton>}
-                  Pot: <input className="clean" style={{ width: '12%' }} value={item.pot} /> Qual: <input className="clean" style={{ width: '12%' }} value={item.quality} /><br clear="all" /></div>
-                {extended == 2 && (
-                  <div style={{ paddingLeft: '3%', width: '97%' }}>
-                    <ContentEditable
-
-                      className={"cetext clean " + changedDesc}
-                      html={item?.description || ''} // innerHTML of the editable div
-                      disabled={false}       // use true to disable editing
-                      onChange={(e) => {
-                        data[field][e.currentTarget.parentNode.parentNode.id]['description'] = e.target.value;
-                        updateHandler(field, data[field]);
-                      }}
-                    />
-                  </div>
-                  // <React.Fragment><br/><span class="textarea" role="textbox" contenteditable={true}
-                  // style={{ marginLeft: '3%', width: '97%'}}
-                  // className={"clean "+changedDesc} >{item?.description}</span></React.Fragment>
-                )}
-              </div>
-            })}
+              return <AssetItem key={i} idx={i} item={item} orig={orig[field]?.[i]} className={className} extended={extended} onUpdate={(idx,f,v) => {
+                if(f === 'delete') {
+                 // data[field].splice(idx,i);
+                  data = update(data, { [field]: { $splice: [[idx, 1]]} });
+                } 
+                else {
+                  data = update(data, { [field]: { [idx]: { [f]: { $set: v }}}});
+                
+                }
+                updateHandler(field, data[field]);
+              }}/>
+  })
+}
 
         </ReactSortable>
         {extended &&
