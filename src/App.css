@@ -144,7 +144,14 @@
 }
 
 
+::placeholder {
+  color:red;
+}
+::-webkit-input-placeholder { 
+  color: blue;
+}
 
 .MuiIconButton-root {
   padding: 0 !important;
 }
+

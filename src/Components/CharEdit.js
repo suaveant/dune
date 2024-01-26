@@ -1,10 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Box, Popover } from '@mui/material';
-import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useCookies } from 'react-cookie';
-import Typography from '@mui/material/Typography';
 import { MyButton } from '../MyButton';
 import { ReactSortable } from "react-sortablejs";
 import ContentEditable from 'react-contenteditable'
@@ -12,6 +11,7 @@ import Info from '@mui/icons-material/Info';
 import DragHandle from '@mui/icons-material/DragHandle';
 import { Delete } from '@mui/icons-material';
 import update from 'immutability-helper';
+import { ConfirmButton } from './ConfirmButton';
 
 let host = window.location.hostname;
 
@@ -223,25 +223,7 @@ export const CharEdit = (props) => {
   );
 }
 
-const ConfirmButton = ({ icon, onConfirm, params, tag = 'IconButton', children }) => {
-  const [show, setShow] = useState(false);
-  const [anchor, setAnchor] = useState();
-  
-  let props = { onClick: (e) => { setAnchor(e.currentTarget); setShow(true) } };
-  return <Fragment>
-    <Popover disableAutoFocus={true} anchorEl={anchor} open={show} onClose={() => setShow(false)}>
-      <Typography sx={{ p: 2 }}>Confirm?<p />
-        <Button onClick={() => { onConfirm(params); setShow(false); }}>Yes</Button>
-        <Button onClick={() => { setShow(false); }}>No</Button>
-      </Typography>
-    </Popover>
-    {tag === 'IconButton' ?
-      <IconButton {...props}>{children}</IconButton>
-      :
-      <MyButton {...props}>{children}</MyButton>
-    }
-  </Fragment>
-};
+
 
 const CharList = ({ field, left, top, width, height, className, data, orig, updateHandler, extended = false }) => {
 

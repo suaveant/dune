@@ -75,12 +75,12 @@ app.get('/createUser/:user', async (req, res) => {
   
 });
 
-app.get('/createCharacter/:character/user/:user', async (req, res) => {
+app.get('/createCharacter/:character/user/:user/type/:type', async (req, res) => {
   console.log('new character',req.params);
   try {
     let charId = uuid();
     const qry = await client.query("INSERT INTO characters(userid, character_name, data) VALUES($1,$2,$3) RETURNING id", 
-      [req.params.user, req.params.character,{ user: req.params.user, name: req.params.character }]);
+      [req.params.user, req.params.character,{ user: req.params.user, name: req.params.character, type: req.params.type }]);
     console.log("RES",qry);
     res.send({ status: true, data: { name: req.params.character, id: qry.rows[0].id }});
     // const user = await userdb.get(req.params.user);
